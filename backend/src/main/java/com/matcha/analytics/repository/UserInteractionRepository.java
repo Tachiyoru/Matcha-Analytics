@@ -24,6 +24,6 @@ public interface UserInteractionRepository extends JpaRepository<UserInteraction
     );
 
     @Query("SELECT ui.targetUserId, COUNT(ui) as count FROM UserInteraction ui " +
-           "WHERE ui.type = :type GROUP BY ui.targetUserId ORDER BY count DESC LIMIT 10")
+           "WHERE ui.type = :type GROUP BY ui.targetUserId ORDER BY COUNT(ui) DESC")
     List<Object[]> findMostInteractedUsers(@Param("type") UserInteraction.InteractionType type);
 } 
