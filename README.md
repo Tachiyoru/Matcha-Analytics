@@ -196,4 +196,235 @@ spring.jpa.show-sql=true
    - Caching for performance
    - Real-time analytics with WebSocket
    - Batch processing for large datasets
-   - Advanced security features 
+   - Advanced security features
+  
+   \\\\\\\\\\\\\\\\
+
+   # SwipeCard Component Documentation
+
+## Overview
+The SwipeCard component is a complex UI element that provides an interactive user profile viewing experience with the following features:
+- 3D card flip animation
+- Photo gallery with modal view
+- Swipe functionality for like/dislike
+- Responsive design
+- Smooth animations and transitions
+
+## Component Structure
+
+### 1. Main Card Structure
+```javascript
+<motion.div className="swipe-card">
+  <div className={`card-inner ${isFlipped ? 'flipped' : ''}`}>
+    <div className="card-front">
+      {/* Front content - Main photo and basic info */}
+    </div>
+    <div className="card-back">
+      {/* Back content - Detailed profile and photo gallery */}
+    </div>
+  </div>
+</motion.div>
+```
+- Uses Framer Motion for animations and gestures
+- Implements 3D flip effect using CSS transforms
+- Handles swipe interactions for like/dislike functionality
+
+### 2. State Management
+```javascript
+const [isFlipped, setIsFlipped] = useState(false);
+const [selectedPhoto, setSelectedPhoto] = useState(null);
+const x = useMotionValue(0);
+const rotate = useTransform(x, [-200, 200], [-30, 30]);
+const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+```
+- Tracks card flip state
+- Manages selected photo for modal view
+- Handles motion values for swipe animations
+
+### 3. Photo Management
+```javascript
+const photos = typeof user.photos === 'string' ? JSON.parse(user.photos) : user.photos;
+const firstPhoto = photos && photos.length > 0 
+  ? `/shared/uploads/${photos[0]}` 
+  : '/default-avatar.png';
+```
+Features:
+- Handles JSON parsing of photo arrays
+- Provides fallback for missing photos
+- Manages photo URL formatting
+
+### 4. Content Organization
+```javascript
+const contentSections = [];
+if (user.bio) {
+  contentSections.push({
+    key: 'bio',
+    content: (
+      <div className="profile-section">
+        <h3>About Me</h3>
+        <p>{user.bio}</p>
+      </div>
+    )
+  });
+}
+// Similar structure for job, interests, and location
+```
+- Creates organized content sections
+- Conditionally renders based on available data
+- Maintains clean component structure
+
+### 5. Photo-Content Interleaving
+```javascript
+contentSections.forEach((section, index) => {
+  sections.push(section.content);
+  if (remainingPhotos[index]) {
+    sections.push(
+      <div 
+        key={`photo-${index}`}
+        className="profile-photo"
+        style={{ backgroundImage: `url(/shared/uploads/${remainingPhotos[index]})` }}
+        onClick={() => handlePhotoClick(remainingPhotos[index])}
+      />
+    );
+  }
+});
+```
+Features:
+- Alternates between content and photos
+- Ensures even distribution of photos
+- Maintains proper React key management
+
+### 6. Photo Modal Implementation
+```javascript
+const handlePhotoClick = (photo) => {
+  if (photo.startsWith('/shared/uploads/')) {
+    setSelectedPhoto(photo);
+  } else {
+    setSelectedPhoto(`/shared/uploads/${photo}`);
+  }
+};
+
+<PhotoModal 
+  photo={selectedPhoto}
+  isOpen={!!selectedPhoto}
+  onClose={() => setSelectedPhoto(null)}
+/>
+```
+- Handles photo click events
+- Manages modal state
+- Provides full-size photo viewing
+
+### 7. CSS Features
+
+#### Card Flip Animation
+```css
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card-inner.flipped {
+  transform: rotateY(-180deg);
+}
+```
+
+#### Photo Styling
+```css
+.profile-photo {
+  width: 100%;
+  height: 200px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.profile-photo:hover {
+  transform: scale(1.02);
+}
+```
+
+#### Modal Styling
+```css
+.photo-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+```
+
+## Key Features
+
+### 1. Interactive Elements
+- Clickable photos with hover effects
+- Smooth flip animation
+- Swipe gestures for like/dislike
+- Modal view for photos
+
+### 2. Responsive Design
+- Properly scaled photos
+- Scrollable content on back
+- Maintained aspect ratios
+- Mobile-friendly interactions
+
+### 3. Error Handling
+- Fallbacks for missing photos
+- Protected against undefined values
+- Proper JSON parsing
+- Graceful handling of missing data
+
+### 4. Performance Considerations
+- Optimized re-renders
+- Efficient photo loading
+- Smooth animations
+- Proper event handling
+
+## Usage Example
+```javascript
+<SwipeCard 
+  user={userProfile}
+  onSwipe={(direction, userId) => {
+    // Handle like/dislike
+    if (direction === 'right') {
+      handleLike(userId);
+    } else {
+      handleDislike(userId);
+    }
+  }}
+/>
+```
+
+## Dependencies
+- React
+- Framer Motion
+- React Icons
+- Custom CSS modules
+
+## Best Practices Implemented
+1. Component modularity
+2. Proper state management
+3. Efficient rendering
+4. Clean code structure
+5. Proper error handling
+6. Responsive design
+7. Accessibility considerations
+8. Performance optimization
+
+## Maintenance Notes
+- Keep photo paths consistent
+- Update fallback images as needed
+- Monitor performance with large photo sets
+- Test on various devices and browsers
+- Keep dependencies updated 
